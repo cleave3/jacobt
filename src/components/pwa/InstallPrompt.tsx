@@ -43,7 +43,6 @@ export function InstallPrompt() {
 
         deferredPrompt.prompt();
         const { outcome } = await deferredPrompt.userChoice;
-        console.log(`User responded to the install prompt with: ${outcome}`);
 
         setDeferredPrompt(null);
         setShowPrompt(false);
