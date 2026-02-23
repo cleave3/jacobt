@@ -1,4 +1,3 @@
-
 import { AppShell } from "@/components/layout/AppShell";
 import { Card } from "@/components/ui/card";
 import { Phone, Shield } from "lucide-react";
@@ -12,12 +11,13 @@ export default async function MembersPage() {
 
     const members = rawMembers.map(user => {
         const initials = user.name?.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() || "U";
-        const isAdmin = user.role === "ADMIN";
+        const isAdmin = ["ADMIN", "SUPERADMIN"].includes(user.role);
 
         return {
             initials,
             name: user.name || "Unknown User",
             phone: user.phone,
+            role: user.role,
             isAdmin,
             color: isAdmin ? "bg-finance-gold text-white" : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400"
         };
@@ -43,13 +43,11 @@ export default async function MembersPage() {
                                 {member.initials}
                             </div>
                             <div className="flex-1 min-w-0">
-                                <div className="flex items-center gap-2 mb-0.5">
+                                <div className="flex items-center justify-between gap-2 mb-0.5">
                                     <h3 className="font-bold text-[15px] text-slate-900 dark:text-white truncate">{member.name}</h3>
-                                    {member.isAdmin && (
-                                        <span className="inline-flex items-center gap-1 bg-finance-gold text-white px-2 py-0.5 rounded-full text-[9px] font-bold shadow-sm uppercase tracking-wider">
-                                            <Shield className="w-2.5 h-2.5" /> Admin
+                                        <span className={`inline-flex items-center gap-1 ${member.color} px-2 py-0.5 rounded-full text-[9px] font-bold shadow-sm uppercase tracking-wider`}>
+                                            <Shield className="w-2.5 h-2.5" /> {member.role}
                                         </span>
-                                    )}
                                 </div>
                                 <div className="flex items-center gap-1.5 text-slate-500 dark:text-slate-400">
                                     <Phone className="w-3.5 h-3.5 shrink-0" />
