@@ -40,7 +40,7 @@ export default async function AssetsPage() {
                                 </CardDescription>
                             </CardHeader>
                             <CardContent className="flex justify-center pb-10">
-                                <Button className="font-bold px-6 shadow-sm"><Plus className="w-4 h-4 mr-2" /> Add First Asset</Button>
+                                <AddAssetButton showFullText={true} />
                             </CardContent>
                         </Card>
                     ) : (
