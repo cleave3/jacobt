@@ -4,7 +4,6 @@ import prisma from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
-import { revalidatePath } from "next/cache";
 
 export async function getProfileMetrics() {
     const session = await getServerSession(authOptions);
