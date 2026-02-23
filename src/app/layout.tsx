@@ -17,7 +17,7 @@ const jakarta = Plus_Jakarta_Sans({
 });
 
 const APP_NAME = "Jacobt";
-const APP_DEFAULT_TITLE = "Jacobt - Asset & Payment Management";
+const APP_DEFAULT_TITLE = "Jacobt";
 const APP_TITLE_TEMPLATE = "%s - Jacobt";
 const APP_DESCRIPTION = "Manage community assets, track targets, and submit payments efficiently.";
 
