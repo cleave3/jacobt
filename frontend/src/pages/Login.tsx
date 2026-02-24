@@ -59,9 +59,6 @@ export default function Login() {
                     <h2 className="mt-6 text-center text-3xl font-heading font-bold text-slate-900 dark:text-white">
                         Welcome to Jacobt
                     </h2>
-                    <p className="mt-2 text-center text-sm text-slate-600 dark:text-slate-400">
-                        Sign in to manage your community assets
-                    </p>
                 </div>
 
                 <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
