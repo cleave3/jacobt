@@ -3,7 +3,7 @@ import { AppShell } from "@/components/layout/AppShell"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Plus, Clock, Building2, Users, Settings, Award, TrendingUp, Wallet, CheckCircle2, AlertCircle } from "lucide-react"
+import { Plus, Clock, Building2, Users, Settings, Award, TrendingUp, CheckCircle2, AlertCircle, Wallet } from "lucide-react"
 import { SubmitPaymentDialog } from "@/components/ui/SubmitPaymentDialog"
 import { DashboardChart } from "@/components/ui/DashboardChart"
 import { CollectionChart } from "@/components/ui/CollectionChart"
@@ -12,10 +12,16 @@ import { AccessControl } from "@/components/auth/AccessControl"
 import { useNavigate, useSearchParams } from "react-router-dom"
 import { useQuery } from "@tanstack/react-query"
 import { axios } from "@/lib/axios"
+import useWidth from "@/hooks/useWidth"
+import { useAuth } from "@/context/AuthContext"
 
 export default function Dashboard() {
     const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false)
     const [isTargetModalOpen, setIsTargetModalOpen] = useState(false)
+
+    const { isMobile } = useWidth()
+
+    const { user } = useAuth()
 
     const navigate = useNavigate()
     const [searchParams] = useSearchParams()
@@ -86,7 +92,7 @@ export default function Dashboard() {
 
     return (
         <AppShell>
-            <div className="flex justify-between items-center mb-4">
+            <div className={`flex items-center mb-4 ${user?.role === "SUPERADMIN" ? "justify-between" : "justify-end"}`}>
                 <AccessControl permittedRoles={["SUPERADMIN"]}>
                     <Button
                         variant="ghost"
@@ -134,30 +140,45 @@ export default function Dashboard() {
                             </div>
                         </CardContent>
                     </Card>
+                    {isMobile && (
+                        <Card className="lg:col-span-2 bg-white dark:bg-[#1e293b] border-slate-200 dark:border-slate-800 shadow-sm rounded-xl overflow-hidden self-stretch">
+                            <CardHeader className="pb-2">
+                                <CardTitle className="text-[14px] font-bold text-slate-500 dark:text-white/70 uppercase tracking-wider leading-none">
+                                    Collection Progress for {selectedYear}
+                                </CardTitle>
+                            </CardHeader>
+                            <CardContent className="pb-6">
+                                <CollectionChart
+                                    raisedTotal={metrics.raisedTotal}
+                                    expectedTotal={metrics.expectedTotal}
+                                    raisedPercentage={metrics.raisedPercentage}
+                                />
+                            </CardContent>
+                        </Card>
+                    )}
 
-                    {/* Annual Target Card */}
-                    <Card className="bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 shadow-sm rounded-xl overflow-hidden">
-                        <CardContent className="p-5 flex flex-col justify-between h-full">
-                            <div className="flex justify-between items-start mb-4">
-                                <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">{selectedYear} Target Rate</p>
-                                <div className="w-7 h-7 rounded-full bg-finance-gold/10 flex items-center justify-center">
-                                    <Wallet className="w-4 h-4 text-finance-gold" />
-                                </div>
+                    {/* Active Members */}
+                    <Card className="bg-[#029455] text-white border-transparent shadow-sm flex flex-col rounded-xl overflow-hidden self-stretch">
+                        <CardHeader className="pb-2 flex flex-row items-center justify-between space-y-0 relative z-10 w-full">
+                            <CardDescription className="text-white/90 font-bold text-[10px] sm:text-[11px] uppercase tracking-wider truncate">
+                                Active Members
+                            </CardDescription>
+                            <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center shrink-0">
+                                <Users className="w-4 h-4" />
                             </div>
-                            <div>
-                                <h2 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight leading-none mb-1">{metrics.raisedPercentage}%</h2>
-                                <p className="text-[11px] font-medium text-slate-400">Of ₦ {metrics.expectedTotal.toLocaleString()}</p>
-                            </div>
-                            <div className="mt-3 w-full bg-slate-100 dark:bg-slate-700 h-1.5 rounded-full overflow-hidden">
-                                <div className="bg-finance-gold h-full transition-all duration-1000" style={{ width: `${Math.min(Number(metrics.raisedPercentage), 100)}%` }} />
-                            </div>
+                        </CardHeader>
+                        <CardContent className="relative z-10 flex-1 flex flex-col justify-end">
+                            <CardTitle className="text-lg sm:text-xl mb-1 tracking-tight truncate leading-tight">
+                                {metrics.membersCount}
+                            </CardTitle>
+                            <p className="text-[10px] sm:text-xs text-white/90 font-medium tracking-wide truncate">Contributing</p>
                         </CardContent>
                     </Card>
                 </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     {/* Collection Progress Chart - Prominent */}
-                    <Card className="lg:col-span-2 bg-white dark:bg-[#1e293b] border-slate-200 dark:border-slate-800 shadow-sm rounded-xl overflow-hidden self-stretch">
+                    {!isMobile && (<Card className="lg:col-span-2 bg-white dark:bg-[#1e293b] border-slate-200 dark:border-slate-800 shadow-sm rounded-xl overflow-hidden self-stretch">
                         <CardHeader className="pb-2">
                             <CardTitle className="text-[14px] font-bold text-slate-500 dark:text-white/70 uppercase tracking-wider leading-none">
                                 Collection Progress for {selectedYear}
@@ -170,10 +191,28 @@ export default function Dashboard() {
                                 raisedPercentage={metrics.raisedPercentage}
                             />
                         </CardContent>
-                    </Card>
+                    </Card>)}
 
                     {/* Smaller Metrics Grid next to chart */}
                     <div className="grid grid-cols-1 lg:grid-cols-1 gap-4">
+                        {/* Annual Target Card */}
+                        {!isMobile && (<Card className="bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 shadow-sm rounded-xl overflow-hidden">
+                            <CardContent className="p-5 flex flex-col justify-between h-full">
+                                <div className="flex justify-between items-start mb-4">
+                                    <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">{selectedYear} Target Rate</p>
+                                    <div className="w-7 h-7 rounded-full bg-finance-gold/10 flex items-center justify-center">
+                                        <Wallet className="w-4 h-4 text-finance-gold" />
+                                    </div>
+                                </div>
+                                <div>
+                                    <h2 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight leading-none mb-1">{metrics.raisedPercentage}%</h2>
+                                    <p className="text-[11px] font-medium text-slate-400">Of ₦ {metrics.expectedTotal.toLocaleString()}</p>
+                                </div>
+                                <div className="mt-3 w-full bg-slate-100 dark:bg-slate-700 h-1.5 rounded-full overflow-hidden">
+                                    <div className="bg-finance-gold h-full transition-all duration-1000" style={{ width: `${Math.min(Number(metrics.raisedPercentage), 100)}%` }} />
+                                </div>
+                            </CardContent>
+                        </Card>)}
                         {/* 4. Pending */}
                         <Card className="bg-white dark:bg-[#1e293b] border-slate-200 dark:border-slate-800 shadow-sm flex flex-col rounded-xl overflow-hidden self-stretch">
                             <CardHeader className="pb-2 flex flex-row items-center justify-between space-y-0 w-full">
@@ -214,24 +253,6 @@ export default function Dashboard() {
                                 </div>
                             </CardContent>
                         </Card>
-
-                        {/* 6. Active Members */}
-                        <Card className="bg-[#029455] text-white border-transparent shadow-sm flex flex-col rounded-xl overflow-hidden self-stretch">
-                            <CardHeader className="pb-2 flex flex-row items-center justify-between space-y-0 relative z-10 w-full">
-                                <CardDescription className="text-white/90 font-bold text-[10px] sm:text-[11px] uppercase tracking-wider truncate">
-                                    Active Members
-                                </CardDescription>
-                                <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center shrink-0">
-                                    <Users className="w-4 h-4" />
-                                </div>
-                            </CardHeader>
-                            <CardContent className="relative z-10 flex-1 flex flex-col justify-end">
-                                <CardTitle className="text-lg sm:text-xl mb-1 tracking-tight truncate leading-tight">
-                                    {metrics.membersCount}
-                                </CardTitle>
-                                <p className="text-[10px] sm:text-xs text-white/90 font-medium tracking-wide truncate">Contributing</p>
-                            </CardContent>
-                        </Card>
                     </div>
                 </div>
 
@@ -258,7 +279,7 @@ export default function Dashboard() {
                         </Card>
 
                         {/* Admin Confirmation Efficiency */}
-                        <Card className="bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 shadow-sm rounded-2xl p-6">
+                        {!isMobile && (<Card className="bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 shadow-sm rounded-2xl p-6">
                             <div className="flex flex-col gap-4">
                                 <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Admin Verification Flow</p>
                                 <div className="flex items-center gap-4">
@@ -291,7 +312,7 @@ export default function Dashboard() {
                                     </div>
                                 </div>
                             </div>
-                        </Card>
+                        </Card>)}
                     </div>
 
                     <div className="flex flex-col gap-6">

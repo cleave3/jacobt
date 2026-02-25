@@ -1,6 +1,6 @@
 
-import { PieChart, Pie, Cell, ResponsiveContainer, Label } from "recharts"
-import { motion } from "framer-motion"
+import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts"
+// import { motion } from "framer-motion"
 
 interface CollectionChartProps {
     raisedTotal: number
@@ -24,7 +24,7 @@ export function CollectionChart({ raisedTotal, expectedTotal, raisedPercentage }
     ]
 
     // Needle calculation: 0% is left (-90deg), 100% is right (90deg)
-    const rotation = (percentage * 1.8) - 90
+    // const rotation = (percentage * 1.8) - 90
 
     return (
         <div className="w-full h-[280px] sm:h-[320px] relative overflow-hidden">
@@ -52,7 +52,7 @@ export function CollectionChart({ raisedTotal, expectedTotal, raisedPercentage }
             {/* Content Display - Positioned relative to the arc center */}
             <div className="absolute inset-x-0 bottom-[10%] flex flex-col items-center justify-center pointer-events-none z-10">
                 <span className="text-5xl sm:text-6xl font-bold font-heading tracking-tight text-slate-900 dark:text-white leading-none">
-                    {Math.round(percentage)}%
+                    {percentage?.toFixed(1)}%
                 </span>
                 <span className="text-xs sm:text-sm text-slate-500 uppercase font-bold tracking-widest mt-3 sm:mt-4">
                     Collected
