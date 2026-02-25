@@ -78,7 +78,7 @@ export default function PropertyDetail() {
 
     return (
         <AppShell>
-            <div className="flex flex-col gap-4 md:gap-6 max-w-2xl mx-auto">
+            <div className="flex flex-col gap-4 md:gap-6 max-w-7xl mx-auto">
 
                 <Link to="/properties" className="inline-flex items-center gap-2 text-slate-800 dark:text-white font-medium hover:text-finance-gold transition-colors w-fit mb-2">
                     <ArrowLeft className="w-4 h-4" />
