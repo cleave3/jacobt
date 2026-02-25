@@ -65,7 +65,7 @@ export class PaymentsService {
         const [payments, total, paymentCircles] = await Promise.all([
             prisma.payment.findMany({
                 where: whereClause,
-                include: { user: true, submittedBy: { select: { id: true, name: true } }, updatedBy: { select: { id: true, name: true } } },
+                include: { user: { select: { id: true, name: true } }, submittedBy: { select: { id: true, name: true } }, updatedBy: { select: { id: true, name: true } } },
                 orderBy: { createdAt: 'desc' },
                 skip,
                 take: limit,

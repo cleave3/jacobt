@@ -198,7 +198,7 @@ export default function PropertyDetail() {
                                     <span className="font-medium">Added By</span>
                                 </div>
                                 <span className="font-semibold text-slate-900 dark:text-white">
-                                    {asset.submittedBy?.name || 'N/A'}
+                                    {asset?.submittedBy?.name || 'N/A'}
                                 </span>
                             </li>
                             <li className="flex justify-between items-center px-5 py-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
@@ -216,7 +216,7 @@ export default function PropertyDetail() {
                                     <span className="font-medium">Last Updated By</span>
                                 </div>
                                 <span className="font-semibold text-slate-900 dark:text-white">
-                                    {asset.updatedBy?.name || 'N/A'}
+                                    {asset?.updatedBy?.name || 'N/A'}
                                 </span>
                             </li>
                             <li className="flex justify-between items-center px-5 py-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">

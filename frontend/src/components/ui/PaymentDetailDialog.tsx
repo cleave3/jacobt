@@ -59,6 +59,8 @@ export function PaymentDetailDialog({ isOpen, onClose, payment, user }: PaymentD
         exit: isMobile ? { y: "100%" } : { opacity: 0, scale: 0.95, x: "-50%", y: "-40%" },
     }
 
+    const disableStatus = [payment.user?.id, payment.submittedBy?.id].includes(user?.id)
+
     return (
         <AnimatePresence>
             {isOpen && (
@@ -83,7 +85,7 @@ export function PaymentDetailDialog({ isOpen, onClose, payment, user }: PaymentD
                     <div className="p-6 pb-12">
                         <div className="flex justify-between items-start mb-6">
                             <div>
-                                <h2 className="font-bold text-xl text-slate-900 font-heading tracking-tight">Payment Details</h2>
+                                <h2 className="font-bold text-xl text-slate-900 font-heading tracking-tight m-0">Payment Details</h2>
                                 <p className="text-[14px] text-slate-500 mt-1 font-medium">Detailed view of the contribution.</p>
                             </div>
                             <div className="flex gap-2">
@@ -171,13 +173,13 @@ export function PaymentDetailDialog({ isOpen, onClose, payment, user }: PaymentD
                                     {isEditing ? (
                                         <select
                                             value={status}
-                                            disabled={payment.user.id === user.id}
+                                            disabled={disableStatus}
                                             onChange={(e) => setStatus(e.target.value)}
-                                            className="w-full font-bold border border-slate-200 rounded-lg p-2 outline-none"
+                                            className="w-full font-bold border border-slate-200 rounded-lg p-2 outline-none text-black"
                                         >
-                                            <option value="PENDING" disabled={payment.user.id === user.id}>PENDING</option>
-                                            <option value="CONFIRMED" disabled={payment.user.id === user.id}>CONFIRMED</option>
-                                            <option value="REJECTED" disabled={payment.user.id === user.id}>REJECTED</option>
+                                            <option value="PENDING" disabled={disableStatus}>PENDING</option>
+                                            <option value="CONFIRMED" disabled={disableStatus}>CONFIRMED</option>
+                                            <option value="REJECTED" disabled={disableStatus}>REJECTED</option>
                                         </select>
                                     ) : (
                                         <div className="mt-1">
@@ -237,15 +239,15 @@ export function PaymentDetailDialog({ isOpen, onClose, payment, user }: PaymentD
                         </div>
                     </div>
                     {/* submittedBy and updatedBy */}
-                    <div className="mt-6 pt-6 border-t border-slate-200 dark:border-slate-700 px-3">
+                    <div className=" border-t border-slate-200 dark:border-slate-700 px-3">
                         <div className="flex align-center justify-between gap-4">
                             <div className="space-y-1.5">
-                                <Label className="text-[11px] font-bold text-slate-700 uppercase tracking-wider">Submitted By</Label>
-                                <p className="text-sm font-bold text-slate-900 dark:text-white">{payment.submittedBy?.name || 'N/A'}</p>
+                                <Label className="text-[11px] font-bold text-slate-700 uppercase tracking-wider text-left">Submitted By</Label>
+                                <p className="text-sm font-bold text-slate-900 text-left">{payment?.submittedBy?.name || 'N/A'}</p>
                             </div>
                             <div className="space-y-1.5">
-                                <Label className="text-[11px] font-bold text-slate-700 uppercase tracking-wider">Last Updated By</Label>
-                                <p className="text-sm font-bold text-slate-900 dark:text-white">{payment.updatedBy?.name || 'N/A'}</p>
+                                <Label className="text-[11px] font-bold text-slate-700 uppercase tracking-wider text-left">Last Updated By</Label>
+                                <p className="text-sm font-bold text-slate-900 text-left">{payment?.updatedBy?.name || 'N/A'}</p>
                             </div>
                         </div>
                     </div>

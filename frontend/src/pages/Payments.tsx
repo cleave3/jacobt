@@ -154,7 +154,7 @@ export default function Payments() {
                                                 </span>
                                             )}
                                         </td>
-                                        <td className="px-6 py-4 text-right">
+                                        <td className="px-6 py-4">
                                             <PaymentRowActions payment={payment} user={user} />
                                         </td>
                                     </tr>
