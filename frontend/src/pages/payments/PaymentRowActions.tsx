@@ -38,7 +38,7 @@ export default function PaymentRowActions({ payment, user }: { payment: any, use
             </Button>
 
             <AccessControl permittedRoles={["ADMIN", "SUPERADMIN"]}>
-                {payment.status === "PENDING" && payment.user?.id !== user?.id && (
+                {payment.status === "PENDING" && ![payment.user?.id, payment.submittedBy?.id].includes(user?.id) && (
                     <>
                         <Button
                             variant="outline"

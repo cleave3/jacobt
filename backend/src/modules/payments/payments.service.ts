@@ -62,19 +62,21 @@ export class PaymentsService {
 
         const skip = (page - 1) * limit
 
-        const [payments, total] = await Promise.all([
+        const [payments, total, paymentCircles] = await Promise.all([
             prisma.payment.findMany({
                 where: whereClause,
-                include: { user: true, submittedBy: { select: { name: true } }, updatedBy: { select: { name: true } } },
+                include: { user: true, submittedBy: { select: { id: true, name: true } }, updatedBy: { select: { id: true, name: true } } },
                 orderBy: { createdAt: 'desc' },
                 skip,
                 take: limit,
             }),
-            prisma.payment.count({ where: whereClause })
+            prisma.payment.count({ where: whereClause }),
+            prisma.target.findMany({ select: { year: true } })
         ])
 
         return {
             data: payments,
+            availableYears: paymentCircles.map((p) => p.year),
             meta: {
                 total,
                 page,

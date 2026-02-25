@@ -1,0 +1,101 @@
+generator client {
+  provider      = "prisma-client-js"
+  output        = "../src/generated/prisma-client"
+  binaryTargets = ["native", "debian-openssl-1.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                String             @id @default(uuid())
+  name              String
+  phone             String             @unique
+  password          String
+  role              Role               @default(USER)
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  payments          Payment[]          @relation("UserPayments")
+  pushSubscriptions PushSubscription[]
+  submittedAssets   Asset[]            @relation("submittedBy")
+  updatedAssets     Asset[]            @relation("updatedBy")
+  submittedPayments Payment[]          @relation("submittedBy")
+  updatedPayments   Payment[]          @relation("updatedBy")
+}
+
+model Asset {
+  id                String      @id @default(uuid())
+  name              String
+  location          String
+  dimensions        String
+  description       String?
+  images            String[]
+  purchasePrice     Decimal     @db.Decimal(12, 2)
+  currentValue      Decimal     @db.Decimal(12, 2)
+  associatedUsersId String[]
+  status            AssetStatus @default(ACTIVE)
+  submittedById     String?
+  submittedBy       User?       @relation("submittedBy", fields: [submittedById], references: [id])
+  updatedById       String?
+  updatedBy         User?       @relation("updatedBy", fields: [updatedById], references: [id])
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+  purchaseDate      DateTime    @default(now())
+}
+
+model Payment {
+  id              String        @id @default(uuid())
+  userId          String
+  amount          Decimal       @db.Decimal(12, 2)
+  proofImage      String
+  status          PaymentStatus @default(PENDING)
+  paymentCircle   Int
+  rejectionReason String?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  submittedById   String?
+  submittedBy     User?         @relation("submittedBy", fields: [submittedById], references: [id])
+  updatedById     String?
+  updatedBy       User?         @relation("updatedBy", fields: [updatedById], references: [id])
+  user            User          @relation("UserPayments", fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Target {
+  id               String   @id @default(uuid())
+  year             Int      @unique
+  individualTarget Decimal  @db.Decimal(12, 2)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  numOfPayments    Int      @default(10)
+  numOfMembers     Int      @default(6)
+}
+
+model PushSubscription {
+  id        String   @id @default(uuid())
+  userId    String
+  endpoint  String   @unique
+  p256dh    String
+  auth      String
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+enum Role {
+  USER
+  ADMIN
+  SUPERADMIN
+}
+
+enum AssetStatus {
+  ACTIVE
+  SOLD
+  MAINTENANCE
+}
+
+enum PaymentStatus {
+  PENDING
+  CONFIRMED
+  REJECTED
+}
