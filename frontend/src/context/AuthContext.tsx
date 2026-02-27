@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react'
+import { axios } from '../lib/axios'
 
 interface User {
     id: string
@@ -55,7 +56,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setUser(null)
         localStorage.removeItem('user')
         // Call backend endpoint to clear cookie as well
-        fetch('/api/auth/logout', { method: 'POST' }).catch(console.error)
+        axios.post('/auth/logout').catch(console.error)
     }
 
     return (

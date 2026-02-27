@@ -19,17 +19,24 @@ export class AuthService {
             throw new Error('Invalid credentials')
         }
 
-        const token = jwt.sign(
+        const accessToken = jwt.sign(
             { userId: user.id, role: user.role },
             env.jwtSecret,
-            { expiresIn: '1d' }
+            { expiresIn: '24h' }
+        )
+
+        const refreshToken = jwt.sign(
+            { userId: user.id },
+            env.jwtSecret,
+            { expiresIn: '7d' } // Refresh token valid for 7 days
         )
 
         const { password: _, ...userWithoutPassword } = user
 
         return {
             user: userWithoutPassword,
-            token,
+            accessToken,
+            refreshToken,
         }
     }
 
@@ -44,5 +51,35 @@ export class AuthService {
 
         const { password: _, ...userWithoutPassword } = user
         return userWithoutPassword
+    }
+
+    async refresh(refreshToken: string) {
+        try {
+            // Verify the refresh token
+            const decoded = jwt.verify(refreshToken, env.jwtSecret) as { userId: string }
+
+            // Re-fetch the user to get the latest role
+            const user = await prisma.user.findUnique({
+                where: { id: decoded.userId },
+            })
+
+            if (!user) {
+                throw new Error('User not found')
+            }
+
+            // Generate a new access token
+            const accessToken = jwt.sign(
+                { userId: user.id, role: user.role },
+                env.jwtSecret,
+                { expiresIn: '24h' }
+            )
+
+            return {
+                accessToken,
+                user: { id: user.id, phone: user.phone, role: user.role, name: user.name, createdAt: user.createdAt, updatedAt: user.updatedAt }
+            }
+        } catch (error) {
+            throw new Error('Invalid or expired refresh token')
+        }
     }
 }

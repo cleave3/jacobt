@@ -18,14 +18,22 @@ export class AuthController {
                 return
             }
 
-            const { user, token } = await this.authService.login(phone, password)
+            const { user, accessToken, refreshToken } = await this.authService.login(phone, password)
 
-            // Set cookie for 1 day
-            res.cookie('jwt', token, {
+            // Set cookie for access token (24 hours)
+            res.cookie('jwt', accessToken, {
                 httpOnly: true,
                 secure: process.env.NODE_ENV === 'production',
                 sameSite: 'strict',
-                maxAge: 24 * 60 * 60 * 1000 // 1 day
+                maxAge: 24 * 60 * 60 * 1000 // 24 hours
+            })
+
+            // Set cookie for refresh token (7 days)
+            res.cookie('refreshToken', refreshToken, {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === 'production',
+                sameSite: 'strict',
+                maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
             })
 
             res.status(200).json({
@@ -43,6 +51,11 @@ export class AuthController {
 
     async logout(req: Request, res: Response): Promise<void> {
         res.cookie('jwt', '', {
+            httpOnly: true,
+            expires: new Date(0)
+        })
+
+        res.cookie('refreshToken', '', {
             httpOnly: true,
             expires: new Date(0)
         })
@@ -65,6 +78,37 @@ export class AuthController {
             } else {
                 res.status(500).json({ message: 'Internal server error', error: error.message })
             }
+        }
+    }
+
+    async refresh(req: Request, res: Response): Promise<void> {
+        try {
+            const token = req.cookies.refreshToken
+
+            if (!token) {
+                res.status(401).json({ message: 'No refresh token provided' })
+                return
+            }
+
+            const { accessToken, user } = await this.authService.refresh(token)
+
+            // Set new access token cookie
+            res.cookie('jwt', accessToken, {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === 'production',
+                sameSite: 'strict',
+                maxAge: 24 * 60 * 60 * 1000 // 24 hours
+            })
+
+            res.status(200).json({
+                message: 'Token refreshed successfully',
+                user
+            })
+        } catch (error: any) {
+            // If refresh fails (expired or invalid), clear the cookies to force re-login
+            res.cookie('jwt', '', { httpOnly: true, expires: new Date(0) })
+            res.cookie('refreshToken', '', { httpOnly: true, expires: new Date(0) })
+            res.status(401).json({ message: 'Invalid or expired refresh token' })
         }
     }
 }
