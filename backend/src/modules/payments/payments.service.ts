@@ -39,7 +39,7 @@ export class PaymentsService {
                 amount: data.amount !== undefined ? Number(data.amount) : undefined,
                 updatedById: userId,
             },
-            include: { user: true },
+            include: { user: true, updatedBy: true },
         })
 
         // Notify user about verification
@@ -47,6 +47,11 @@ export class PaymentsService {
             await pushService.sendNotificationToUser(payment.userId, {
                 title: `Contribution ${data.status.toLowerCase()}`,
                 body: `Your payment of ₦${payment.amount} has been ${data.status.toLowerCase()}.`
+            })
+
+            await pushService.sendNotificationToUsersByRole(['ADMIN', 'SUPERADMIN'], {
+                title: `Contribution ${data.status.toLowerCase()}`,
+                body: `Payment of ₦${payment.amount} for ${payment.user?.name || 'a user'} has been ${data.status.toLowerCase()} by ${payment.updatedBy?.name || 'an admin'}.`
             })
         }
 
