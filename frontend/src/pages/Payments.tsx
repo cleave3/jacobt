@@ -5,6 +5,7 @@ import { useAuth } from "@/context/AuthContext"
 import PaymentRowActions from "./payments/PaymentRowActions"
 import { SubmitPaymentTrigger } from "@/components/ui/SubmitPaymentTrigger"
 import { Pagination } from "@/components/ui/Pagination"
+import { buildPageData } from "@/lib/pagination"
 import ExportButton from "./payments/ExportButton"
 import YearFilter from "./payments/YearFilter"
 import { useSearchParams } from "react-router-dom"
@@ -73,15 +74,7 @@ export default function Payments() {
     }
 
     const payments = response.data || []
-    const pageData = response.pageData || {
-        isFirstPage: true,
-        isLastPage: true,
-        currentPage: 1,
-        previousPage: null,
-        nextPage: null,
-        pageCount: 1,
-        totalCount: payments.length
-    }
+    const pageData = buildPageData(response.meta, page, payments.length)
 
     // Fallback if availableYears data structure is different from endpoint
     const availableYearsResponse = response.availableYears || []

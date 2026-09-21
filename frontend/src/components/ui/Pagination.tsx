@@ -1,31 +1,29 @@
-
-
-import { Link } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 import { ChevronLeft, ChevronRight } from "lucide-react"
 import { cn } from "@/lib/utils"
+import type { PageNumberPagination } from "@/lib/pagination"
 
-export interface PageNumberPagination {
-    isFirstPage: boolean
-    isLastPage: boolean
-    currentPage: number
-    previousPage: number | null
-    nextPage: number | null
-    pageCount: number
-    totalCount: number
-}
+export type { PageNumberPagination }
 
 interface PaginationProps {
     pageData: PageNumberPagination
     baseUrl: string
+    hideOnSinglePage?: boolean
 }
 
-export function Pagination({ pageData, baseUrl }: PaginationProps) {
+export function Pagination({ pageData, baseUrl, hideOnSinglePage = true }: PaginationProps) {
+    const [searchParams] = useSearchParams()
     const { currentPage, pageCount, previousPage, nextPage, isFirstPage, isLastPage } = pageData
 
-    if (pageCount <= 1) return null
+    if (hideOnSinglePage && pageCount <= 1) return null
 
     const getPageUrl = (page: number) => {
         const url = new URL(baseUrl, window.location.origin)
+        searchParams.forEach((value, key) => {
+            if (!url.searchParams.has(key)) {
+                url.searchParams.set(key, value)
+            }
+        })
         url.searchParams.set("page", page.toString())
         return url.pathname + url.search
     }
