@@ -64,6 +64,12 @@ export class UsersService {
                 phone: true,
                 role: true,
                 createdAt: true,
+                _count: {
+                    select: { payments: true },
+                },
+            },
+            orderBy: {
+                createdAt: 'desc',
             },
         })
     }

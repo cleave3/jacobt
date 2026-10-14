@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider, useAuth } from '@/context/AuthContext'
 import { Toaster } from 'sonner'
+import { ErrorBoundary } from '@/components/common/ErrorBoundary'
 
 import Dashboard from '@/pages/Dashboard'
 import Login from '@/pages/Login'
@@ -22,7 +23,7 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
     return <Navigate to="/login" replace />
   }
 
-  return <>{children}</>
+  return <ErrorBoundary>{children}</ErrorBoundary>
 }
 
 function App() {

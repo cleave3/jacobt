@@ -157,6 +157,7 @@ exports.Prisma.PaymentScalarFieldEnum = {
   proofImage: 'proofImage',
   status: 'status',
   paymentCircle: 'paymentCircle',
+  paymentDate: 'paymentDate',
   rejectionReason: 'rejectionReason',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',

@@ -9,6 +9,7 @@ import ImageUpload from "./ImageUpload"
 import { MultiSelect, Option } from "./multi-select"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import useWidth from "@/hooks/useWidth"
+import { normalizeUsersList } from "@/lib/utils"
 
 interface AssetDialogProps {
     isOpen: boolean
@@ -37,7 +38,7 @@ export function AssetDialog({ isOpen, onClose, asset }: AssetDialogProps) {
 
     const { isLoading, data } = useQuery({
         queryKey: ["users"],
-        queryFn: () => axios.get('/users').then((res: any) => res?.users),
+        queryFn: () => axios.get('/users').then((res: any) => normalizeUsersList(res)),
     })
 
     useEffect(() => {
@@ -109,10 +110,10 @@ export function AssetDialog({ isOpen, onClose, asset }: AssetDialogProps) {
         exit: isMobile ? { y: "100%" } : { opacity: 0, scale: 0.95, x: "-50%", y: "-40%" },
     }
 
-    const allMembers: Option[] = (data || [])?.map?.((m: any) => ({
+    const allMembers: Option[] = normalizeUsersList(data).map((m: any) => ({
         label: m.name,
         value: m.id
-    })) || []
+    }))
 
     return (
         <AnimatePresence>

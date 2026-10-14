@@ -1,6 +1,7 @@
-import { Request, Response } from 'express'
+import { Response } from 'express'
 import { PaymentsService } from './payments.service'
 import { AuthRequest } from '../../core/middlewares'
+import { submitPaymentSchema, updatePaymentSchema, queryPaymentsSchema } from './payments.schema'
 
 export class PaymentsController {
     private paymentsService: PaymentsService
@@ -16,14 +17,18 @@ export class PaymentsController {
                 return
             }
 
-            const { amount, paymentCircle, proofUrl, userId } = req.body
-
-            if (!amount || !paymentCircle || !proofUrl) {
-                res.status(400).json({ message: 'Missing required fields' })
+            const validation = submitPaymentSchema.safeParse(req.body)
+            if (!validation.success) {
+                const errorMessages = validation.error?.errors?.map((e: any) => e.message).join(', ') || 'Validation error'
+                res.status(400).json({ success: false, message: errorMessages })
                 return
             }
 
-            const payment = await this.paymentsService.submitPayment(req.user.userId, { amount, paymentCircle, proofUrl, userId }, req.user.role)
+            const payment = await this.paymentsService.submitPayment(
+                req.user.userId,
+                validation.data,
+                req.user.role
+            )
             res.status(201).json({ success: true, payment })
         } catch (error: any) {
             res.status(500).json({ success: false, message: 'Internal server error', error: error.message })
@@ -38,9 +43,14 @@ export class PaymentsController {
             }
 
             const { id } = req.params
-            const data = req.body
+            const validation = updatePaymentSchema.safeParse(req.body)
+            if (!validation.success) {
+                const errorMessages = validation.error?.errors?.map((e: any) => e.message).join(', ') || 'Validation error'
+                res.status(400).json({ success: false, message: errorMessages })
+                return
+            }
 
-            const payment = await this.paymentsService.updatePayment(id, data, req.user.userId)
+            const payment = await this.paymentsService.updatePayment(id, validation.data, req.user.userId)
             res.status(200).json({ success: true, payment })
         } catch (error: any) {
             res.status(500).json({ success: false, message: 'Internal server error', error: error.message })
@@ -54,11 +64,29 @@ export class PaymentsController {
                 return
             }
 
-            const page = parseInt(req.query.page as string) || 1
-            const limit = parseInt(req.query.limit as string) || 10
-            const year = req.query.year ? parseInt(req.query.year as string) : undefined
+            const queryValidation = queryPaymentsSchema.safeParse(req.query)
+            const queryData = queryValidation.success ? queryValidation.data : req.query
 
-            const result = await this.paymentsService.getPayments(page, limit, year)
+            const page = parseInt(queryData.page as string) || 1
+            const limit = parseInt(queryData.limit as string) || 10
+            const year = queryData.year && queryData.year !== 'ALL' ? parseInt(queryData.year as string) : undefined
+            const userId = queryData.userId as string | undefined
+            const status = queryData.status as string | undefined
+            const startDate = queryData.startDate as string | undefined
+            const endDate = queryData.endDate as string | undefined
+            const search = queryData.search as string | undefined
+
+            const result = await this.paymentsService.getPayments({
+                page,
+                limit,
+                year,
+                userId,
+                status,
+                startDate,
+                endDate,
+                search,
+            })
+
             res.status(200).json({ success: true, ...result })
         } catch (error: any) {
             res.status(500).json({ success: false, message: 'Internal server error', error: error.message })
@@ -72,15 +100,25 @@ export class PaymentsController {
                 return
             }
 
-            const year = parseInt(req.query.year as string)
-            if (!year) {
-                res.status(400).json({ message: 'Year query parameter is required' })
-                return
-            }
+            const year = req.query.year && req.query.year !== 'ALL' ? parseInt(req.query.year as string) : undefined
+            const userId = req.query.userId as string | undefined
+            const status = req.query.status as string | undefined
+            const startDate = req.query.startDate as string | undefined
+            const endDate = req.query.endDate as string | undefined
+            const search = req.query.search as string | undefined
 
-            const csv = await this.paymentsService.exportPayments(year)
+            const csv = await this.paymentsService.exportPayments({
+                year,
+                userId,
+                status,
+                startDate,
+                endDate,
+                search,
+            })
+
+            const filename = year ? `payments-${year}.csv` : `payments-all.csv`
             res.setHeader('Content-Type', 'text/csv')
-            res.setHeader('Content-Disposition', `attachment filename=payments-${year}.csv`)
+            res.setHeader('Content-Disposition', `attachment; filename="${filename}"`)
             res.status(200).send(csv)
         } catch (error: any) {
             res.status(500).json({ success: false, message: 'Internal server error', error: error.message })

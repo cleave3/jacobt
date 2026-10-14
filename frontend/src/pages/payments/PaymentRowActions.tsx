@@ -5,8 +5,21 @@ import { PaymentDetailDialog } from "@/components/ui/PaymentDetailDialog"
 import { axios } from "@/lib/axios"
 import { useQueryClient } from "@tanstack/react-query"
 import { AccessControl } from "@/components/auth/AccessControl"
+import type { PaymentItem } from "../Payments"
 
-export default function PaymentRowActions({ payment, user }: { payment: any, user: any }) {
+interface AuthUser {
+    id: string
+    name?: string
+    phone?: string
+    role?: string
+}
+
+interface PaymentRowActionsProps {
+    payment: PaymentItem
+    user: AuthUser | null
+}
+
+export default function PaymentRowActions({ payment, user }: PaymentRowActionsProps) {
     const [isLoading, setIsLoading] = useState(false)
     const [isDetailOpen, setIsDetailOpen] = useState(false)
     const queryClient = useQueryClient()

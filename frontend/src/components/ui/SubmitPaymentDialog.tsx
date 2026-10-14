@@ -10,6 +10,7 @@ import ImageUpload from "./ImageUpload"
 import useWidth from "@/hooks/useWidth"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { AccessControl } from "../auth/AccessControl"
+import { normalizeUsersList } from "@/lib/utils"
 
 interface DialogProps {
     isOpen: boolean
@@ -31,14 +32,15 @@ export function SubmitPaymentDialog({ isOpen, onClose }: DialogProps) {
 
     const currentYear = new Date().getFullYear()
     const [year, setYear] = useState(currentYear)
-
+    const [paymentDate, setPaymentDate] = useState(() => new Date().toISOString().split('T')[0])
 
     const { isMobile } = useWidth()
 
-    const { data } = useQuery({
+    const { data: rawUsers } = useQuery({
         queryKey: ["users"],
-        queryFn: () => axios.get("/users").then((res: any) => res.users),
+        queryFn: () => axios.get("/users").then((res: any) => normalizeUsersList(res)),
     })
+    const data = normalizeUsersList(rawUsers)
 
     useEffect(() => {
         if (sessionUser && !selectedMemberId) {
@@ -50,6 +52,7 @@ export function SubmitPaymentDialog({ isOpen, onClose }: DialogProps) {
         setAmount("")
         setProofUrl("")
         setSelectedMemberId("")
+        setPaymentDate(new Date().toISOString().split('T')[0])
         setIsSubmitting(false)
         setSuccess(false)
         setError(null)
@@ -72,7 +75,8 @@ export function SubmitPaymentDialog({ isOpen, onClose }: DialogProps) {
                 userId: selectedMemberId || sessionUser?.id,
                 amount: parseFloat(amount),
                 paymentCircle: year,
-                proofUrl: proofUrl
+                proofUrl: proofUrl,
+                paymentDate: paymentDate || undefined
             })
             handleClose()
         } catch (err: any) {
@@ -208,6 +212,19 @@ export function SubmitPaymentDialog({ isOpen, onClose }: DialogProps) {
                                             </svg>
                                         </div>
                                     </div>
+                                </div>
+
+                                <div className="space-y-1.5">
+                                    <Label htmlFor="paymentDate" className="text-[13px] font-bold text-slate-700 uppercase tracking-wider">Payment Date</Label>
+                                    <Input
+                                        id="paymentDate"
+                                        type="date"
+                                        value={paymentDate}
+                                        max={new Date().toISOString().split('T')[0]}
+                                        onChange={(e) => setPaymentDate(e.target.value)}
+                                        required
+                                        className="text-[15px] font-semibold border-slate-200 focus:border-finance-gold focus:ring-finance-gold/20 h-11"
+                                    />
                                 </div>
 
                                 <div className="space-y-1.5">

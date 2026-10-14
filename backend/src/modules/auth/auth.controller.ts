@@ -1,6 +1,22 @@
-import { Request, Response } from 'express'
+import { CookieOptions, Request, Response } from 'express'
 import { AuthService } from './auth.service'
 import { AuthRequest } from '../../core/middlewares'
+
+const getAuthCookieOptions = (maxAge?: number): CookieOptions => ({
+    httpOnly: true,
+    secure: true,
+    sameSite: 'none' as const,
+    path: '/',
+    ...(maxAge !== undefined ? { maxAge } : {}),
+})
+
+const clearAuthCookieOptions: CookieOptions = {
+    httpOnly: true,
+    secure: true,
+    sameSite: 'none' as const,
+    path: '/',
+    expires: new Date(0),
+}
 
 export class AuthController {
     private authService: AuthService
@@ -21,20 +37,10 @@ export class AuthController {
             const { user, accessToken, refreshToken } = await this.authService.login(phone, password)
 
             // Set cookie for access token (24 hours)
-            res.cookie('jwt', accessToken, {
-                httpOnly: true,
-                secure: process.env.NODE_ENV === 'production',
-                sameSite: 'none',
-                maxAge: 24 * 60 * 60 * 1000 // 24 hours
-            })
+            res.cookie('jwt', accessToken, getAuthCookieOptions(24 * 60 * 60 * 1000))
 
             // Set cookie for refresh token (7 days)
-            res.cookie('refreshToken', refreshToken, {
-                httpOnly: true,
-                secure: process.env.NODE_ENV === 'production',
-                sameSite: 'none',
-                maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
-            })
+            res.cookie('refreshToken', refreshToken, getAuthCookieOptions(7 * 24 * 60 * 60 * 1000))
 
             res.status(200).json({
                 message: 'Login successful',
@@ -50,15 +56,8 @@ export class AuthController {
     }
 
     async logout(req: Request, res: Response): Promise<void> {
-        res.cookie('jwt', '', {
-            httpOnly: true,
-            expires: new Date(0)
-        })
-
-        res.cookie('refreshToken', '', {
-            httpOnly: true,
-            expires: new Date(0)
-        })
+        res.cookie('jwt', '', clearAuthCookieOptions)
+        res.cookie('refreshToken', '', clearAuthCookieOptions)
 
         res.status(200).json({ message: 'Logged out successfully' })
     }
@@ -93,12 +92,7 @@ export class AuthController {
             const { accessToken, user } = await this.authService.refresh(token)
 
             // Set new access token cookie
-            res.cookie('jwt', accessToken, {
-                httpOnly: true,
-                secure: process.env.NODE_ENV === 'production',
-                sameSite: 'strict',
-                maxAge: 24 * 60 * 60 * 1000 // 24 hours
-            })
+            res.cookie('jwt', accessToken, getAuthCookieOptions(24 * 60 * 60 * 1000))
 
             res.status(200).json({
                 message: 'Token refreshed successfully',
@@ -106,9 +100,10 @@ export class AuthController {
             })
         } catch (error: any) {
             // If refresh fails (expired or invalid), clear the cookies to force re-login
-            res.cookie('jwt', '', { httpOnly: true, expires: new Date(0) })
-            res.cookie('refreshToken', '', { httpOnly: true, expires: new Date(0) })
+            res.cookie('jwt', '', clearAuthCookieOptions)
+            res.cookie('refreshToken', '', clearAuthCookieOptions)
             res.status(401).json({ message: 'Invalid or expired refresh token' })
         }
     }
 }
+

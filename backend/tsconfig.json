@@ -9,10 +9,7 @@
         "skipLibCheck": true,
         "forceConsistentCasingInFileNames": true,
         "resolveJsonModule": true,
-        "baseUrl": ".",
-        "paths": {
-            "@/*": ["src/*"]
-        }
+        "paths": {"*": ["./*"]}
     },
     "include": ["src/**/*"]
 }

@@ -4,7 +4,7 @@ import path from 'path'
 dotenv.config({ path: path.resolve(__dirname, '../../.env') })
 
 export const env = {
-    port: process.env.PORT || 5000,
+    port: process.env.PORT || 5001,
     nodeEnv: process.env.NODE_ENV || 'development',
     jwtSecret: process.env.JWT_SECRET || 'super-secret-key-change-me',
     databaseUrl: process.env.DATABASE_URL,

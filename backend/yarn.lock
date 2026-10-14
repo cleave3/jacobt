@@ -849,6 +849,11 @@ once@^1.4.0:
   dependencies:
     wrappy "1"
 
+owi-validator@^2.0.2:
+  version "2.0.2"
+  resolved "https://registry.yarnpkg.com/owi-validator/-/owi-validator-2.0.2.tgz#de9562c6f6e24be80210adadb776c5685c231656"
+  integrity sha512-gAi8B77kKcx9OwHWn4vcrdpdSvTohefhhlIUIOhtcl0JruNdt85qRoWllN0X7emQmgY/NB1ATvryyFYYP08hgQ==
+
 parseurl@^1.3.3:
   version "1.3.3"
   resolved "https://registry.npmjs.org/parseurl/-/parseurl-1.3.3.tgz"

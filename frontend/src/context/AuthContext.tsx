@@ -28,17 +28,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             try {
                 const storedUser = localStorage.getItem('user')
                 if (storedUser) {
-                    setUser(JSON.parse(storedUser))
+                    try {
+                        const res: any = await axios.get('/auth/me')
+                        if (res?.user) {
+                            setUser(res.user)
+                            localStorage.setItem('user', JSON.stringify(res.user))
+                        } else {
+                            throw new Error('No user data returned')
+                        }
+                    } catch {
+                        // Session expired or invalid
+                        localStorage.removeItem('user')
+                        setUser(null)
+                    }
+                } else {
+                    setUser(null)
                 }
-
-                // Optional: fetch real user session using cookies
-                // const res = await fetch('/api/auth/me')
-                // if (res.ok) {
-                //   const data = await res.json()
-                //   setUser(data.user)
-                // }
             } catch (error) {
                 console.error("Failed to restore session", error)
+                localStorage.removeItem('user')
+                setUser(null)
             } finally {
                 setIsLoading(false)
             }

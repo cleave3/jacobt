@@ -1,6 +1,6 @@
 generator client {
-  provider = "prisma-client-js"
-  output   = "../src/generated/prisma-client"
+  provider      = "prisma-client-js"
+  output        = "../src/generated/prisma-client"
   binaryTargets = ["native", "debian-openssl-1.0.x"]
 }
 
@@ -36,9 +36,9 @@ model Asset {
   currentValue      Decimal     @db.Decimal(12, 2)
   associatedUsersId String[]
   status            AssetStatus @default(ACTIVE)
-  submittedById     String?   
+  submittedById     String?
   submittedBy       User?       @relation("submittedBy", fields: [submittedById], references: [id])
-  updatedById       String?   
+  updatedById       String?
   updatedBy         User?       @relation("updatedBy", fields: [updatedById], references: [id])
   createdAt         DateTime    @default(now())
   updatedAt         DateTime    @updatedAt
@@ -52,6 +52,7 @@ model Payment {
   proofImage      String
   status          PaymentStatus @default(PENDING)
   paymentCircle   Int
+  paymentDate     DateTime?
   rejectionReason String?
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt

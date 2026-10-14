@@ -3546,6 +3546,7 @@ export namespace Prisma {
     proofImage: string | null
     status: $Enums.PaymentStatus | null
     paymentCircle: number | null
+    paymentDate: Date | null
     rejectionReason: string | null
     createdAt: Date | null
     updatedAt: Date | null
@@ -3560,6 +3561,7 @@ export namespace Prisma {
     proofImage: string | null
     status: $Enums.PaymentStatus | null
     paymentCircle: number | null
+    paymentDate: Date | null
     rejectionReason: string | null
     createdAt: Date | null
     updatedAt: Date | null
@@ -3574,6 +3576,7 @@ export namespace Prisma {
     proofImage: number
     status: number
     paymentCircle: number
+    paymentDate: number
     rejectionReason: number
     createdAt: number
     updatedAt: number
@@ -3600,6 +3603,7 @@ export namespace Prisma {
     proofImage?: true
     status?: true
     paymentCircle?: true
+    paymentDate?: true
     rejectionReason?: true
     createdAt?: true
     updatedAt?: true
@@ -3614,6 +3618,7 @@ export namespace Prisma {
     proofImage?: true
     status?: true
     paymentCircle?: true
+    paymentDate?: true
     rejectionReason?: true
     createdAt?: true
     updatedAt?: true
@@ -3628,6 +3633,7 @@ export namespace Prisma {
     proofImage?: true
     status?: true
     paymentCircle?: true
+    paymentDate?: true
     rejectionReason?: true
     createdAt?: true
     updatedAt?: true
@@ -3729,6 +3735,7 @@ export namespace Prisma {
     proofImage: string
     status: $Enums.PaymentStatus
     paymentCircle: number
+    paymentDate: Date | null
     rejectionReason: string | null
     createdAt: Date
     updatedAt: Date
@@ -3762,6 +3769,7 @@ export namespace Prisma {
     proofImage?: boolean
     status?: boolean
     paymentCircle?: boolean
+    paymentDate?: boolean
     rejectionReason?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -3779,6 +3787,7 @@ export namespace Prisma {
     proofImage?: boolean
     status?: boolean
     paymentCircle?: boolean
+    paymentDate?: boolean
     rejectionReason?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -3796,6 +3805,7 @@ export namespace Prisma {
     proofImage?: boolean
     status?: boolean
     paymentCircle?: boolean
+    paymentDate?: boolean
     rejectionReason?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -3828,6 +3838,7 @@ export namespace Prisma {
       proofImage: string
       status: $Enums.PaymentStatus
       paymentCircle: number
+      paymentDate: Date | null
       rejectionReason: string | null
       createdAt: Date
       updatedAt: Date
@@ -4235,6 +4246,7 @@ export namespace Prisma {
     readonly proofImage: FieldRef<"Payment", 'String'>
     readonly status: FieldRef<"Payment", 'PaymentStatus'>
     readonly paymentCircle: FieldRef<"Payment", 'Int'>
+    readonly paymentDate: FieldRef<"Payment", 'DateTime'>
     readonly rejectionReason: FieldRef<"Payment", 'String'>
     readonly createdAt: FieldRef<"Payment", 'DateTime'>
     readonly updatedAt: FieldRef<"Payment", 'DateTime'>
@@ -6550,6 +6562,7 @@ export namespace Prisma {
     proofImage: 'proofImage',
     status: 'status',
     paymentCircle: 'paymentCircle',
+    paymentDate: 'paymentDate',
     rejectionReason: 'rejectionReason',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt',
@@ -6929,6 +6942,7 @@ export namespace Prisma {
     proofImage?: StringFilter<"Payment"> | string
     status?: EnumPaymentStatusFilter<"Payment"> | $Enums.PaymentStatus
     paymentCircle?: IntFilter<"Payment"> | number
+    paymentDate?: DateTimeNullableFilter<"Payment"> | Date | string | null
     rejectionReason?: StringNullableFilter<"Payment"> | string | null
     createdAt?: DateTimeFilter<"Payment"> | Date | string
     updatedAt?: DateTimeFilter<"Payment"> | Date | string
@@ -6946,6 +6960,7 @@ export namespace Prisma {
     proofImage?: SortOrder
     status?: SortOrder
     paymentCircle?: SortOrder
+    paymentDate?: SortOrderInput | SortOrder
     rejectionReason?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -6966,6 +6981,7 @@ export namespace Prisma {
     proofImage?: StringFilter<"Payment"> | string
     status?: EnumPaymentStatusFilter<"Payment"> | $Enums.PaymentStatus
     paymentCircle?: IntFilter<"Payment"> | number
+    paymentDate?: DateTimeNullableFilter<"Payment"> | Date | string | null
     rejectionReason?: StringNullableFilter<"Payment"> | string | null
     createdAt?: DateTimeFilter<"Payment"> | Date | string
     updatedAt?: DateTimeFilter<"Payment"> | Date | string
@@ -6983,6 +6999,7 @@ export namespace Prisma {
     proofImage?: SortOrder
     status?: SortOrder
     paymentCircle?: SortOrder
+    paymentDate?: SortOrderInput | SortOrder
     rejectionReason?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -7005,6 +7022,7 @@ export namespace Prisma {
     proofImage?: StringWithAggregatesFilter<"Payment"> | string
     status?: EnumPaymentStatusWithAggregatesFilter<"Payment"> | $Enums.PaymentStatus
     paymentCircle?: IntWithAggregatesFilter<"Payment"> | number
+    paymentDate?: DateTimeNullableWithAggregatesFilter<"Payment"> | Date | string | null
     rejectionReason?: StringNullableWithAggregatesFilter<"Payment"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"Payment"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Payment"> | Date | string
@@ -7360,6 +7378,7 @@ export namespace Prisma {
     proofImage: string
     status?: $Enums.PaymentStatus
     paymentCircle: number
+    paymentDate?: Date | string | null
     rejectionReason?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -7375,6 +7394,7 @@ export namespace Prisma {
     proofImage: string
     status?: $Enums.PaymentStatus
     paymentCircle: number
+    paymentDate?: Date | string | null
     rejectionReason?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -7388,6 +7408,7 @@ export namespace Prisma {
     proofImage?: StringFieldUpdateOperationsInput | string
     status?: EnumPaymentStatusFieldUpdateOperationsInput | $Enums.PaymentStatus
     paymentCircle?: IntFieldUpdateOperationsInput | number
+    paymentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     rejectionReason?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -7403,6 +7424,7 @@ export namespace Prisma {
     proofImage?: StringFieldUpdateOperationsInput | string
     status?: EnumPaymentStatusFieldUpdateOperationsInput | $Enums.PaymentStatus
     paymentCircle?: IntFieldUpdateOperationsInput | number
+    paymentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     rejectionReason?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -7417,6 +7439,7 @@ export namespace Prisma {
     proofImage: string
     status?: $Enums.PaymentStatus
     paymentCircle: number
+    paymentDate?: Date | string | null
     rejectionReason?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -7430,6 +7453,7 @@ export namespace Prisma {
     proofImage?: StringFieldUpdateOperationsInput | string
     status?: EnumPaymentStatusFieldUpdateOperationsInput | $Enums.PaymentStatus
     paymentCircle?: IntFieldUpdateOperationsInput | number
+    paymentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     rejectionReason?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -7442,6 +7466,7 @@ export namespace Prisma {
     proofImage?: StringFieldUpdateOperationsInput | string
     status?: EnumPaymentStatusFieldUpdateOperationsInput | $Enums.PaymentStatus
     paymentCircle?: IntFieldUpdateOperationsInput | number
+    paymentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     rejectionReason?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -7889,6 +7914,17 @@ export namespace Prisma {
     not?: NestedIntFilter<$PrismaModel> | number
   }
 
+  export type DateTimeNullableFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
+  }
+
   export type UserRelationFilter = {
     is?: UserWhereInput
     isNot?: UserWhereInput
@@ -7901,6 +7937,7 @@ export namespace Prisma {
     proofImage?: SortOrder
     status?: SortOrder
     paymentCircle?: SortOrder
+    paymentDate?: SortOrder
     rejectionReason?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -7920,6 +7957,7 @@ export namespace Prisma {
     proofImage?: SortOrder
     status?: SortOrder
     paymentCircle?: SortOrder
+    paymentDate?: SortOrder
     rejectionReason?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -7934,6 +7972,7 @@ export namespace Prisma {
     proofImage?: SortOrder
     status?: SortOrder
     paymentCircle?: SortOrder
+    paymentDate?: SortOrder
     rejectionReason?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -7970,6 +8009,20 @@ export namespace Prisma {
     _sum?: NestedIntFilter<$PrismaModel>
     _min?: NestedIntFilter<$PrismaModel>
     _max?: NestedIntFilter<$PrismaModel>
+  }
+
+  export type DateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableWithAggregatesFilter<$PrismaModel> | Date | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedDateTimeNullableFilter<$PrismaModel>
+    _max?: NestedDateTimeNullableFilter<$PrismaModel>
   }
 
   export type TargetCountOrderByAggregateInput = {
@@ -8403,6 +8456,10 @@ export namespace Prisma {
     divide?: number
   }
 
+  export type NullableDateTimeFieldUpdateOperationsInput = {
+    set?: Date | string | null
+  }
+
   export type UserUpdateOneWithoutSubmittedPaymentsNestedInput = {
     create?: XOR<UserCreateWithoutSubmittedPaymentsInput, UserUncheckedCreateWithoutSubmittedPaymentsInput>
     connectOrCreate?: UserCreateOrConnectWithoutSubmittedPaymentsInput
@@ -8622,6 +8679,17 @@ export namespace Prisma {
     not?: NestedEnumPaymentStatusFilter<$PrismaModel> | $Enums.PaymentStatus
   }
 
+  export type NestedDateTimeNullableFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
+  }
+
   export type NestedEnumPaymentStatusWithAggregatesFilter<$PrismaModel = never> = {
     equals?: $Enums.PaymentStatus | EnumPaymentStatusFieldRefInput<$PrismaModel>
     in?: $Enums.PaymentStatus[] | ListEnumPaymentStatusFieldRefInput<$PrismaModel>
@@ -8659,12 +8727,27 @@ export namespace Prisma {
     not?: NestedFloatFilter<$PrismaModel> | number
   }
 
+  export type NestedDateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableWithAggregatesFilter<$PrismaModel> | Date | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedDateTimeNullableFilter<$PrismaModel>
+    _max?: NestedDateTimeNullableFilter<$PrismaModel>
+  }
+
   export type PaymentCreateWithoutUserInput = {
     id?: string
     amount: Decimal | DecimalJsLike | number | string
     proofImage: string
     status?: $Enums.PaymentStatus
     paymentCircle: number
+    paymentDate?: Date | string | null
     rejectionReason?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -8678,6 +8761,7 @@ export namespace Prisma {
     proofImage: string
     status?: $Enums.PaymentStatus
     paymentCircle: number
+    paymentDate?: Date | string | null
     rejectionReason?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -8815,6 +8899,7 @@ export namespace Prisma {
     proofImage: string
     status?: $Enums.PaymentStatus
     paymentCircle: number
+    paymentDate?: Date | string | null
     rejectionReason?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -8829,6 +8914,7 @@ export namespace Prisma {
     proofImage: string
     status?: $Enums.PaymentStatus
     paymentCircle: number
+    paymentDate?: Date | string | null
     rejectionReason?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -8851,6 +8937,7 @@ export namespace Prisma {
     proofImage: string
     status?: $Enums.PaymentStatus
     paymentCircle: number
+    paymentDate?: Date | string | null
     rejectionReason?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -8865,6 +8952,7 @@ export namespace Prisma {
     proofImage: string
     status?: $Enums.PaymentStatus
     paymentCircle: number
+    paymentDate?: Date | string | null
     rejectionReason?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -8907,6 +8995,7 @@ export namespace Prisma {
     proofImage?: StringFilter<"Payment"> | string
     status?: EnumPaymentStatusFilter<"Payment"> | $Enums.PaymentStatus
     paymentCircle?: IntFilter<"Payment"> | number
+    paymentDate?: DateTimeNullableFilter<"Payment"> | Date | string | null
     rejectionReason?: StringNullableFilter<"Payment"> | string | null
     createdAt?: DateTimeFilter<"Payment"> | Date | string
     updatedAt?: DateTimeFilter<"Payment"> | Date | string
@@ -9489,6 +9578,7 @@ export namespace Prisma {
     proofImage: string
     status?: $Enums.PaymentStatus
     paymentCircle: number
+    paymentDate?: Date | string | null
     rejectionReason?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -9545,6 +9635,7 @@ export namespace Prisma {
     proofImage: string
     status?: $Enums.PaymentStatus
     paymentCircle: number
+    paymentDate?: Date | string | null
     rejectionReason?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -9558,6 +9649,7 @@ export namespace Prisma {
     proofImage: string
     status?: $Enums.PaymentStatus
     paymentCircle: number
+    paymentDate?: Date | string | null
     rejectionReason?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -9570,6 +9662,7 @@ export namespace Prisma {
     proofImage?: StringFieldUpdateOperationsInput | string
     status?: EnumPaymentStatusFieldUpdateOperationsInput | $Enums.PaymentStatus
     paymentCircle?: IntFieldUpdateOperationsInput | number
+    paymentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     rejectionReason?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -9583,6 +9676,7 @@ export namespace Prisma {
     proofImage?: StringFieldUpdateOperationsInput | string
     status?: EnumPaymentStatusFieldUpdateOperationsInput | $Enums.PaymentStatus
     paymentCircle?: IntFieldUpdateOperationsInput | number
+    paymentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     rejectionReason?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -9596,6 +9690,7 @@ export namespace Prisma {
     proofImage?: StringFieldUpdateOperationsInput | string
     status?: EnumPaymentStatusFieldUpdateOperationsInput | $Enums.PaymentStatus
     paymentCircle?: IntFieldUpdateOperationsInput | number
+    paymentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     rejectionReason?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -9735,6 +9830,7 @@ export namespace Prisma {
     proofImage?: StringFieldUpdateOperationsInput | string
     status?: EnumPaymentStatusFieldUpdateOperationsInput | $Enums.PaymentStatus
     paymentCircle?: IntFieldUpdateOperationsInput | number
+    paymentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     rejectionReason?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -9749,6 +9845,7 @@ export namespace Prisma {
     proofImage?: StringFieldUpdateOperationsInput | string
     status?: EnumPaymentStatusFieldUpdateOperationsInput | $Enums.PaymentStatus
     paymentCircle?: IntFieldUpdateOperationsInput | number
+    paymentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     rejectionReason?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -9762,6 +9859,7 @@ export namespace Prisma {
     proofImage?: StringFieldUpdateOperationsInput | string
     status?: EnumPaymentStatusFieldUpdateOperationsInput | $Enums.PaymentStatus
     paymentCircle?: IntFieldUpdateOperationsInput | number
+    paymentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     rejectionReason?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -9774,6 +9872,7 @@ export namespace Prisma {
     proofImage?: StringFieldUpdateOperationsInput | string
     status?: EnumPaymentStatusFieldUpdateOperationsInput | $Enums.PaymentStatus
     paymentCircle?: IntFieldUpdateOperationsInput | number
+    paymentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     rejectionReason?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -9788,6 +9887,7 @@ export namespace Prisma {
     proofImage?: StringFieldUpdateOperationsInput | string
     status?: EnumPaymentStatusFieldUpdateOperationsInput | $Enums.PaymentStatus
     paymentCircle?: IntFieldUpdateOperationsInput | number
+    paymentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     rejectionReason?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -9801,6 +9901,7 @@ export namespace Prisma {
     proofImage?: StringFieldUpdateOperationsInput | string
     status?: EnumPaymentStatusFieldUpdateOperationsInput | $Enums.PaymentStatus
     paymentCircle?: IntFieldUpdateOperationsInput | number
+    paymentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     rejectionReason?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
