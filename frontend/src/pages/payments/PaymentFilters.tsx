@@ -136,6 +136,49 @@ export default function PaymentFilters({ availableYears }: PaymentFiltersProps) 
                 </button>
             </div>
 
+            {/* Mobile Quick Filter Horizontal Pill Strip */}
+            <div className="lg:hidden flex items-center gap-1.5 overflow-x-auto no-scrollbar py-1 -mx-1 px-1">
+                {[
+                    { label: "All", key: "status", value: "ALL", isActive: currentStatus === "ALL" || !currentStatus },
+                    { label: "Pending", key: "status", value: "PENDING", isActive: currentStatus === "PENDING" },
+                    { label: "Confirmed", key: "status", value: "CONFIRMED", isActive: currentStatus === "CONFIRMED" },
+                    { label: "Rejected", key: "status", value: "REJECTED", isActive: currentStatus === "REJECTED" },
+                ].map((chip) => (
+                    <button
+                        key={chip.label}
+                        type="button"
+                        onClick={() => updateFilter(chip.key, chip.value)}
+                        className={`h-7 px-3 rounded-full text-xs font-semibold whitespace-nowrap transition-all active:scale-95 cursor-pointer shrink-0 border ${
+                            chip.isActive
+                                ? "bg-finance-gold text-white border-finance-gold shadow-sm font-bold"
+                                : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:border-slate-300"
+                        }`}
+                    >
+                        {chip.label}
+                    </button>
+                ))}
+
+                <div className="w-[1px] h-4 bg-slate-200 dark:bg-slate-700 mx-1 shrink-0" />
+
+                {availableYears.map((yr) => {
+                    const isYearActive = currentYear === yr.toString()
+                    return (
+                        <button
+                            key={yr}
+                            type="button"
+                            onClick={() => updateFilter("year", isYearActive ? "ALL" : yr.toString())}
+                            className={`h-7 px-3 rounded-full text-xs font-semibold whitespace-nowrap transition-all active:scale-95 cursor-pointer shrink-0 border ${
+                                isYearActive
+                                    ? "bg-slate-900 dark:bg-white text-white dark:text-slate-900 border-transparent shadow-sm font-bold"
+                                    : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:border-slate-300"
+                            }`}
+                        >
+                            {yr} Cycle
+                        </button>
+                    )
+                })}
+            </div>
+
             {/* Active Filter Chips */}
             {hasAnyActiveFilter && (
                 <div className="flex flex-wrap items-center gap-1.5 pt-0.5">

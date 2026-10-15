@@ -1,9 +1,11 @@
+import { useState } from "react"
 import { useNavigate, useSearchParams } from "react-router-dom"
-import { useQuery } from "@tanstack/react-query"
+import { motion } from "framer-motion"
 import { AppShell } from "@/components/layout/AppShell"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Button } from "@/components/ui/button"
-import { CheckCircle2, XCircle, Clock, CreditCard, RotateCcw, Image as ImageIcon } from "lucide-react"
+import { CheckCircle2, XCircle, Clock, CreditCard, RotateCcw, Image as ImageIcon, ChevronRight, Check, X } from "lucide-react"
+import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { useAuth } from "@/context/AuthContext"
 import PaymentRowActions from "./payments/PaymentRowActions"
 import { SubmitPaymentTrigger } from "@/components/ui/SubmitPaymentTrigger"
@@ -11,8 +13,11 @@ import { Pagination } from "@/components/ui/Pagination"
 import { buildPageData } from "@/lib/pagination"
 import ExportButton from "./payments/ExportButton"
 import PaymentFilters from "./payments/PaymentFilters"
+import { PaymentDetailDialog } from "@/components/ui/PaymentDetailDialog"
+import { ConfirmActionDialog } from "@/components/ui/ConfirmActionDialog"
 import { axios } from "@/lib/axios"
 import { AccessControl } from "@/components/auth/AccessControl"
+import { toast } from "sonner"
 
 export interface PaymentItem {
     id: string
@@ -64,7 +69,36 @@ export default function Payments() {
     const endDate = searchParams.get("endDate") || ""
     const search = searchParams.get("search") || ""
 
+    const [selectedPayment, setSelectedPayment] = useState<PaymentItem | null>(null)
+    const [mobilePendingAction, setMobilePendingAction] = useState<{
+        payment: PaymentItem
+        status: "CONFIRMED" | "REJECTED"
+    } | null>(null)
+    const [isActionLoading, setIsActionLoading] = useState(false)
     const { user } = useAuth()
+    const queryClient = useQueryClient()
+
+    const isAdmin = user?.role === "ADMIN" || user?.role === "SUPERADMIN"
+
+    const handleMobileActionConfirm = async () => {
+        if (!mobilePendingAction) return
+        setIsActionLoading(true)
+        try {
+            await axios.patch(`/payments/${mobilePendingAction.payment.id}`, { status: mobilePendingAction.status })
+            queryClient.invalidateQueries({ queryKey: ['payments'] })
+            toast.success(
+                mobilePendingAction.status === "CONFIRMED"
+                    ? "Payment confirmed successfully"
+                    : "Payment marked as rejected"
+            )
+            setMobilePendingAction(null)
+        } catch (error: unknown) {
+            const errObj = error as { response?: { data?: { message?: string } }; message?: string }
+            toast.error(errObj.response?.data?.message || errObj.message || "Failed to update payment status")
+        } finally {
+            setIsActionLoading(false)
+        }
+    }
 
     const { data: response, isLoading, error } = useQuery<PaymentsApiResponse>({
         queryKey: ['payments', page, limit, year, userId, status, startDate, endDate, search],
@@ -346,79 +380,135 @@ export default function Payments() {
                                 </table>
                             </div>
 
-                            {/* Mobile Card View */}
-                            <div className="md:hidden divide-y divide-slate-100 dark:divide-slate-800">
+                            {/* Mobile Card View (Fintech Native Transaction Feed) */}
+                            <motion.div 
+                                variants={{
+                                    hidden: { opacity: 0 },
+                                    visible: {
+                                        opacity: 1,
+                                        transition: { staggerChildren: 0.04 }
+                                    }
+                                }}
+                                initial="hidden"
+                                animate="visible"
+                                className="md:hidden divide-y divide-slate-100 dark:divide-slate-800/60"
+                            >
                                 {payments.map((payment) => {
                                     const paymentDateFormatted = new Date(payment.paymentDate || payment.createdAt).toLocaleDateString(undefined, {
-                                        year: "numeric",
                                         month: "short",
                                         day: "numeric",
-                                    })
-                                    const loggedDateObj = new Date(payment.createdAt)
-                                    const loggedDateFormatted = loggedDateObj.toLocaleDateString(undefined, {
-                                        year: "numeric",
-                                        month: "short",
-                                        day: "numeric",
+                                        year: "numeric"
                                     })
 
                                     return (
-                                        <div
+                                        <motion.div
                                             key={payment.id}
-                                            className="p-4 flex flex-col gap-3 hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition-colors"
+                                            variants={{
+                                                hidden: { opacity: 0, y: 10 },
+                                                visible: { opacity: 1, y: 0 }
+                                            }}
+                                            whileTap={{ scale: 0.985 }}
+                                            onClick={() => setSelectedPayment(payment)}
+                                            className="p-3.5 sm:p-4 flex flex-col hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition-colors cursor-pointer active:bg-slate-100/70 dark:active:bg-slate-800/70 select-none"
                                         >
-                                            <div className="flex justify-between items-start">
-                                                <div className="flex items-center gap-3">
-                                                    <div className="w-10 h-10 rounded-full bg-finance-gold/10 text-finance-gold flex items-center justify-center font-bold text-xs uppercase shrink-0">
-                                                        {payment.user?.name ? payment.user.name.slice(0, 2) : "??"}
+                                            <div className="flex items-center justify-between gap-3">
+                                                {/* Left: Status Icon & Details */}
+                                                <div className="flex items-center gap-3 min-w-0">
+                                                    <div className="shrink-0">
+                                                        {payment.status === "CONFIRMED" && (
+                                                            <div className="w-11 h-11 rounded-2xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 flex items-center justify-center shadow-sm">
+                                                                <CheckCircle2 className="w-5 h-5 text-emerald-500" />
+                                                            </div>
+                                                        )}
+                                                        {payment.status === "PENDING" && (
+                                                            <div className="w-11 h-11 rounded-2xl bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 flex items-center justify-center shadow-sm">
+                                                                <Clock className="w-5 h-5 text-amber-500" />
+                                                            </div>
+                                                        )}
+                                                        {payment.status === "REJECTED" && (
+                                                            <div className="w-11 h-11 rounded-2xl bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20 flex items-center justify-center shadow-sm">
+                                                                <XCircle className="w-5 h-5 text-rose-500" />
+                                                            </div>
+                                                        )}
                                                     </div>
-                                                    <div>
-                                                        <h3 className="font-bold text-slate-900 dark:text-white text-sm">
-                                                            {payment.user?.name || "Unknown Member"}
-                                                        </h3>
-                                                        <div className="flex flex-wrap items-center gap-x-2 gap-y-1 mt-0.5">
-                                                            <span className="text-xs text-slate-700 dark:text-slate-300 font-medium">
-                                                                Paid: {paymentDateFormatted}
-                                                            </span>
-                                                            <span className="text-[11px] text-slate-400 dark:text-slate-500">
-                                                                · Logged: {loggedDateFormatted}
-                                                            </span>
-                                                            <span className="text-[10px] px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 font-bold text-slate-600 dark:text-slate-400">
+
+                                                    <div className="min-w-0">
+                                                        <div className="flex items-center gap-1.5">
+                                                            <h3 className="font-bold text-slate-900 dark:text-white text-sm truncate">
+                                                                {payment.user?.name || "Unknown Member"}
+                                                            </h3>
+                                                            {payment.proofImage && (
+                                                                <span title="Payment proof attached" className="text-finance-gold shrink-0">
+                                                                    <ImageIcon className="w-3.5 h-3.5" />
+                                                                </span>
+                                                            )}
+                                                        </div>
+                                                        <div className="flex items-center gap-1.5 text-xs text-slate-400 dark:text-slate-500 mt-0.5">
+                                                            <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400">
                                                                 {payment.paymentCircle} Cycle
                                                             </span>
+                                                            <span>•</span>
+                                                            <span className="truncate">{paymentDateFormatted}</span>
                                                         </div>
                                                     </div>
                                                 </div>
-                                                <div className="text-right">
-                                                    <p className="font-extrabold text-slate-900 dark:text-white font-mono text-[15px]">
-                                                        ₦ {Number(payment.amount).toLocaleString()}
-                                                    </p>
+
+                                                {/* Right: Amount & Status / Chevron */}
+                                                <div className="flex items-center gap-2 shrink-0">
+                                                    <div className="text-right">
+                                                        <p className="font-extrabold text-slate-900 dark:text-white font-mono text-[14px]">
+                                                            ₦ {Number(payment.amount).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                                        </p>
+                                                        <span className={`inline-block text-[10px] font-bold uppercase tracking-wider ${
+                                                            payment.status === "CONFIRMED"
+                                                                ? "text-emerald-600 dark:text-emerald-400"
+                                                                : payment.status === "PENDING"
+                                                                ? "text-amber-600 dark:text-amber-400"
+                                                                : "text-rose-600 dark:text-rose-400"
+                                                        }`}>
+                                                            {payment.status}
+                                                        </span>
+                                                    </div>
+                                                    <ChevronRight className="w-4 h-4 text-slate-300 dark:text-slate-600 shrink-0" />
                                                 </div>
                                             </div>
 
-                                            <div className="flex justify-between items-center pt-1 border-t border-slate-100 dark:border-slate-800/60">
-                                                <div>
-                                                    {payment.status === "CONFIRMED" && (
-                                                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold border border-[#2cd48b] text-[#2cd48b] bg-[#2cd48b]/10">
-                                                            <CheckCircle2 className="w-3 h-3" /> CONFIRMED
-                                                        </span>
-                                                    )}
-                                                    {payment.status === "PENDING" && (
-                                                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold border border-finance-gold text-finance-gold bg-finance-gold/10">
-                                                            <Clock className="w-3 h-3" /> PENDING
-                                                        </span>
-                                                    )}
-                                                    {payment.status === "REJECTED" && (
-                                                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold border border-[#ef4444] text-[#ef4444] bg-[#ef4444]/10">
-                                                            <XCircle className="w-3 h-3" /> REJECTED
-                                                        </span>
-                                                    )}
+                                            {/* Quick Mobile Admin Actions on Pending Payments */}
+                                            {payment.status === "PENDING" && (user?.role === "SUPERADMIN" || (isAdmin && ![payment.user?.id, payment.submittedBy?.id].includes(user?.id))) && (
+                                                <div 
+                                                    className="mt-3 pt-2.5 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between gap-2"
+                                                    onClick={(e) => e.stopPropagation()}
+                                                >
+                                                    <span className="text-[11px] font-bold text-amber-600 dark:text-amber-400 flex items-center gap-1">
+                                                        <Clock className="w-3.5 h-3.5" />
+                                                        Pending Approval
+                                                    </span>
+                                                    <div className="flex items-center gap-2">
+                                                        <button
+                                                            type="button"
+                                                            disabled={isActionLoading}
+                                                            onClick={() => setMobilePendingAction({ payment, status: "REJECTED" })}
+                                                            className="h-8 px-3 rounded-xl border border-rose-200 dark:border-rose-900/50 bg-rose-50/70 dark:bg-rose-950/30 hover:bg-rose-100 dark:hover:bg-rose-900/40 text-rose-600 dark:text-rose-400 text-xs font-bold flex items-center gap-1 active:scale-95 transition-all cursor-pointer"
+                                                        >
+                                                            <X className="w-3.5 h-3.5" />
+                                                            <span>Reject</span>
+                                                        </button>
+                                                        <button
+                                                            type="button"
+                                                            disabled={isActionLoading}
+                                                            onClick={() => setMobilePendingAction({ payment, status: "CONFIRMED" })}
+                                                            className="h-8 px-3.5 rounded-xl bg-[#2cd48b] hover:bg-[#20ba77] text-white text-xs font-bold flex items-center gap-1 shadow-sm shadow-emerald-500/20 active:scale-95 transition-all cursor-pointer"
+                                                        >
+                                                            <Check className="w-3.5 h-3.5" />
+                                                            <span>Confirm</span>
+                                                        </button>
+                                                    </div>
                                                 </div>
-                                                <PaymentRowActions payment={payment} user={user} />
-                                            </div>
-                                        </div>
+                                            )}
+                                        </motion.div>
                                     )
                                 })}
-                            </div>
+                            </motion.div>
                         </>
                     )}
                 </div>
@@ -426,6 +516,39 @@ export default function Payments() {
                 {/* Pagination */}
                 <Pagination pageData={pageData} baseUrl="/payments" />
             </div>
+
+            {/* Mobile / Desktop Tap-to-Inspect Receipt Dialog */}
+            <PaymentDetailDialog
+                isOpen={Boolean(selectedPayment)}
+                onClose={() => setSelectedPayment(null)}
+                payment={selectedPayment}
+                user={user}
+            />
+
+            {/* Mobile Actions Confirmation Dialog */}
+            <ConfirmActionDialog
+                isOpen={mobilePendingAction !== null}
+                onClose={() => !isActionLoading && setMobilePendingAction(null)}
+                onConfirm={handleMobileActionConfirm}
+                title={mobilePendingAction?.status === "CONFIRMED" ? "Approve Contribution?" : "Reject Contribution?"}
+                description={
+                    mobilePendingAction?.status === "CONFIRMED"
+                        ? "Are you sure you want to approve this contribution? The record will be permanently marked as confirmed."
+                        : "Are you sure you want to reject this contribution? The record will be marked as rejected."
+                }
+                confirmLabel={mobilePendingAction?.status === "CONFIRMED" ? "Yes, Approve" : "Yes, Reject"}
+                variant={mobilePendingAction?.status === "CONFIRMED" ? "confirm" : "destructive"}
+                isLoading={isActionLoading}
+                paymentDetails={
+                    mobilePendingAction
+                        ? {
+                              amount: mobilePendingAction.payment.amount,
+                              memberName: mobilePendingAction.payment.user?.name,
+                              cycle: mobilePendingAction.payment.paymentCircle,
+                          }
+                        : undefined
+                }
+            />
         </AppShell>
     )
 }

@@ -4,10 +4,12 @@ import { X, CheckCircle2, Clock, XCircle, Edit, Save, Calendar, Banknote, User a
 import { Button } from "./button"
 import { Input } from "./input"
 import { Label } from "./label"
+import { ConfirmActionDialog } from "./ConfirmActionDialog"
 import { axios } from "@/lib/axios"
 import { AccessControl } from "@/components/auth/AccessControl"
 import useWidth from "@/hooks/useWidth"
 import { useQueryClient } from "@tanstack/react-query"
+import { toast } from "sonner"
 import type { PaymentItem } from "@/pages/Payments"
 
 interface AuthUser {
@@ -31,6 +33,8 @@ export function PaymentDetailDialog({ isOpen, onClose, payment, user }: PaymentD
     const [year, setYear] = useState("")
     const [paymentDate, setPaymentDate] = useState("")
     const [isSubmitting, setIsSubmitting] = useState(false)
+    const [pendingAction, setPendingAction] = useState<"CONFIRMED" | "REJECTED" | null>(null)
+    const [isConfirmingEdit, setIsConfirmingEdit] = useState(false)
 
     const queryClient = useQueryClient()
     const { isMobile } = useWidth()
@@ -42,10 +46,14 @@ export function PaymentDetailDialog({ isOpen, onClose, payment, user }: PaymentD
             setYear(payment.paymentCircle?.toString() || "")
             const dateVal = payment.paymentDate || payment.createdAt
             setPaymentDate(dateVal ? new Date(dateVal).toISOString().split('T')[0] : "")
+            setIsEditing(false)
+            setPendingAction(null)
+            setIsConfirmingEdit(false)
         }
     }, [payment])
 
     const handleSave = async () => {
+        if (!payment) return
         setIsSubmitting(true)
         try {
             await axios.patch('/payments/' + payment.id, {
@@ -55,10 +63,30 @@ export function PaymentDetailDialog({ isOpen, onClose, payment, user }: PaymentD
                 paymentDate: paymentDate || undefined
             })
             queryClient.invalidateQueries({ queryKey: ['payments'] })
+            toast.success("Payment details updated successfully")
             setIsEditing(false)
+            setIsConfirmingEdit(false)
             onClose()
-        } catch (error: any) {
-            alert(error.message || "Failed to update payment")
+        } catch (error: unknown) {
+            const errObj = error as { response?: { data?: { message?: string } }; message?: string }
+            toast.error(errObj.response?.data?.message || errObj.message || "Failed to update payment")
+        } finally {
+            setIsSubmitting(false)
+        }
+    }
+
+    const handleDirectAction = async (targetStatus: "CONFIRMED" | "REJECTED") => {
+        if (!payment) return
+        setIsSubmitting(true)
+        try {
+            await axios.patch('/payments/' + payment.id, { status: targetStatus })
+            queryClient.invalidateQueries({ queryKey: ['payments'] })
+            toast.success(targetStatus === "CONFIRMED" ? "Payment confirmed successfully" : "Payment marked as rejected")
+            setPendingAction(null)
+            onClose()
+        } catch (error: unknown) {
+            const errObj = error as { response?: { data?: { message?: string } }; message?: string }
+            toast.error(errObj.response?.data?.message || errObj.message || "Failed to update payment status")
         } finally {
             setIsSubmitting(false)
         }
@@ -72,7 +100,7 @@ export function PaymentDetailDialog({ isOpen, onClose, payment, user }: PaymentD
         exit: isMobile ? { y: "100%" } : { opacity: 0, scale: 0.95, x: "-50%", y: "-40%" },
     }
 
-    const disableStatus = [payment.user?.id, payment.submittedBy?.id].includes(user?.id)
+    const disableStatus = user?.role !== "SUPERADMIN" && [payment.user?.id, payment.submittedBy?.id].includes(user?.id)
 
     return (
         <AnimatePresence>
@@ -109,7 +137,7 @@ export function PaymentDetailDialog({ isOpen, onClose, payment, user }: PaymentD
                                         </Button>
                                     )}
                                 </AccessControl>
-                                <button onClick={onClose} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors p-1 md:block hidden">
+                                <button onClick={onClose} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer">
                                     <X className="w-5 h-5" />
                                 </button>
                             </div>
@@ -274,19 +302,44 @@ export function PaymentDetailDialog({ isOpen, onClose, payment, user }: PaymentD
                                 </div>
                             </div>
 
+                            {/* Direct Admin Action Buttons when Pending */}
+                            {!isEditing && payment.status === "PENDING" && !disableStatus && (user?.role === "ADMIN" || user?.role === "SUPERADMIN") && (
+                                <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex gap-3">
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        disabled={isSubmitting}
+                                        onClick={() => setPendingAction("REJECTED")}
+                                        className="flex-1 h-11 border-rose-200 dark:border-rose-900/40 text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/30 rounded-xl font-bold cursor-pointer"
+                                    >
+                                        <XCircle className="w-4 h-4 mr-1.5" /> Reject
+                                    </Button>
+                                    <Button
+                                        type="button"
+                                        disabled={isSubmitting}
+                                        onClick={() => setPendingAction("CONFIRMED")}
+                                        className="flex-1 h-11 bg-[#2cd48b] hover:bg-[#20ba77] text-white rounded-xl font-bold shadow-md shadow-emerald-500/20 cursor-pointer"
+                                    >
+                                        <CheckCircle2 className="w-4 h-4 mr-1.5" /> Approve Payment
+                                    </Button>
+                                </div>
+                            )}
+
                             {isEditing && (
                                 <div className="pt-2 flex gap-3">
                                     <Button
-                                        onClick={handleSave}
+                                        type="button"
+                                        onClick={() => setIsConfirmingEdit(true)}
                                         disabled={isSubmitting}
-                                        className="flex-1 h-11 bg-finance-gold hover:bg-finance-goldLight text-white font-bold rounded-xl shadow-md"
+                                        className="flex-1 h-11 bg-finance-gold hover:bg-finance-goldLight text-white font-bold rounded-xl shadow-md cursor-pointer"
                                     >
                                         <Save className="w-4 h-4 mr-2" /> {isSubmitting ? "Saving..." : "Save Changes"}
                                     </Button>
                                     <Button
+                                        type="button"
                                         variant="ghost"
                                         onClick={() => setIsEditing(false)}
-                                        className="flex-1 h-11 font-bold text-slate-500"
+                                        className="flex-1 h-11 font-bold text-slate-500 cursor-pointer"
                                     >
                                         Cancel
                                     </Button>
@@ -310,6 +363,52 @@ export function PaymentDetailDialog({ isOpen, onClose, payment, user }: PaymentD
                     </div>
                 </motion.div>
             )}
+
+            {/* Direct Approve / Reject Confirmation Modal */}
+            <ConfirmActionDialog
+                isOpen={pendingAction !== null}
+                onClose={() => !isSubmitting && setPendingAction(null)}
+                onConfirm={() => pendingAction && handleDirectAction(pendingAction)}
+                title={pendingAction === "CONFIRMED" ? "Approve Contribution?" : "Reject Contribution?"}
+                description={
+                    pendingAction === "CONFIRMED"
+                        ? "Are you sure you want to approve this contribution? The record will be permanently marked as confirmed."
+                        : "Are you sure you want to reject this contribution? The record will be marked as rejected."
+                }
+                confirmLabel={pendingAction === "CONFIRMED" ? "Yes, Approve" : "Yes, Reject"}
+                variant={pendingAction === "CONFIRMED" ? "confirm" : "destructive"}
+                isLoading={isSubmitting}
+                paymentDetails={
+                    payment
+                        ? {
+                              amount: payment.amount,
+                              memberName: payment.user?.name,
+                              cycle: payment.paymentCircle,
+                          }
+                        : undefined
+                }
+            />
+
+            {/* Edit Save Confirmation Modal */}
+            <ConfirmActionDialog
+                isOpen={isConfirmingEdit}
+                onClose={() => !isSubmitting && setIsConfirmingEdit(false)}
+                onConfirm={handleSave}
+                title="Save Payment Changes?"
+                description="Are you sure you want to update this contribution record? These modifications will be saved immediately."
+                confirmLabel="Yes, Save Changes"
+                variant="warning"
+                isLoading={isSubmitting}
+                paymentDetails={
+                    payment
+                        ? {
+                              amount: amount || payment.amount,
+                              memberName: payment.user?.name,
+                              cycle: year || payment.paymentCircle,
+                          }
+                        : undefined
+                }
+            />
         </AnimatePresence>
     )
 }

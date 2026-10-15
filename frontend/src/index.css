@@ -68,13 +68,28 @@
 @layer base {
     * {
         @apply border-border;
+        -webkit-tap-highlight-color: transparent;
     }
     body {
-        @apply bg-background text-foreground;
+        @apply bg-background text-foreground antialiased;
+        overscroll-behavior-y: none;
     }
 }
 
 /* Custom CSS overrides for native feel */
 .pb-safe {
-    padding-bottom: env(safe-area-inset-bottom);
+    padding-bottom: max(env(safe-area-inset-bottom, 0px), 12px);
+}
+
+.pt-safe {
+    padding-top: max(env(safe-area-inset-top, 0px), 12px);
+}
+
+/* Hide scrollbars for horizontal carousels and filter chip lists */
+.no-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+.no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
 }

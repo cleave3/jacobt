@@ -527,7 +527,7 @@ export default function Dashboard() {
             <Button
                 onClick={() => setIsPaymentModalOpen(true)}
                 aria-label="Add payment"
-                className="sm:hidden fixed bottom-24 right-4 w-14 h-14 rounded-full shadow-lg shadow-finance-gold/30 flex items-center justify-center z-50 bg-finance-gold hover:bg-finance-gold/90 text-white"
+                className="sm:hidden fixed bottom-24 right-4 w-14 h-14 rounded-full shadow-lg shadow-finance-gold/30 flex items-center justify-center z-50 bg-finance-gold hover:bg-finance-gold/90 text-white active:scale-90 transition-transform"
             >
                 <Plus className="w-6 h-6" />
             </Button>

@@ -1,16 +1,35 @@
 import { AppShell } from "@/components/layout/AppShell"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
-import { MapPin, Maximize, TrendingUp, Building2 } from "lucide-react"
+import { MapPin, Maximize, TrendingUp, Building2, ArrowUpRight } from "lucide-react"
 import { Link } from "react-router-dom"
+import { motion } from "framer-motion"
 import { AddAssetButton } from "@/components/ui/AddAssetButton"
 import { useQuery } from "@tanstack/react-query"
 import { axios } from "@/lib/axios"
 
+interface Asset {
+    id: string
+    name: string
+    location?: string
+    dimensions?: string
+    purchasePrice: number | string
+    currentValue: number | string
+    images?: string[]
+}
+
+interface AssetsResponse {
+    success: boolean
+    assets: Asset[]
+}
+
 export default function Properties() {
-    const { data: response, isLoading, error } = useQuery({
+    const { data: response, isLoading, error } = useQuery<AssetsResponse>({
         queryKey: ['assets'],
-        queryFn: async (): Promise<any> => await axios.get('/assets')
+        queryFn: async (): Promise<AssetsResponse> => {
+            const res = await axios.get('/assets')
+            return res.data || res
+        }
     })
 
     if (isLoading) {
@@ -52,7 +71,7 @@ export default function Properties() {
         return <AppShell><div className="flex justify-center p-8 text-red-500">Failed to load properties data.</div></AppShell>
     }
 
-    const assets: any[] = response?.assets || []
+    const assets: Asset[] = response?.assets || []
 
     return (
         <AppShell>
@@ -83,70 +102,101 @@ export default function Properties() {
                             </CardContent>
                         </Card>
                     ) : (
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                            {assets?.map?.((asset: any) => {
+                        <motion.div 
+                            variants={{
+                                hidden: { opacity: 0 },
+                                visible: {
+                                    opacity: 1,
+                                    transition: { staggerChildren: 0.05 }
+                                }
+                            }}
+                            initial="hidden"
+                            animate="visible"
+                            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5"
+                        >
+                            {assets?.map?.((asset: Asset) => {
                                 const current = Number(asset.currentValue)
                                 const purchase = Number(asset.purchasePrice)
                                 const gain = current - purchase
                                 const appreciation = purchase > 0 ? ((gain) / purchase) * 100 : 0
 
                                 return (
-                                    <Link to={`/properties/${asset.id}`} key={asset.id} className="block group">
-                                        <div className="bg-white dark:bg-[#1e293b] rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 relative pb-6">
-
-                                            {/* Status Badge */}
-                                            <div className="absolute top-3 right-3 z-10 bg-white/95 dark:bg-slate-900/95 backdrop-blur shadow-sm border border-slate-200/50 dark:border-slate-700/50 px-2.5 py-1 rounded-full flex items-center gap-1.5">
-                                                <TrendingUp className="w-3.5 h-3.5 text-[#2cd48b]" />
-                                                <span className="text-[10px] font-bold text-[#2cd48b] tracking-wider uppercase">+{appreciation.toFixed(1)}%</span>
-                                            </div>
-
-                                            {/* Image Header */}
-                                            <div className="h-48 relative bg-slate-100 dark:bg-slate-800 w-full overflow-hidden flex items-center justify-center">
-                                                <div className="absolute inset-0 flex items-center justify-center text-slate-300">
+                                    <motion.div
+                                        key={asset.id}
+                                        variants={{
+                                            hidden: { opacity: 0, y: 12 },
+                                            visible: { opacity: 1, y: 0 }
+                                        }}
+                                        whileTap={{ scale: 0.985 }}
+                                    >
+                                        <Link to={`/properties/${asset.id}`} className="block group">
+                                            <div className="bg-white dark:bg-[#1e293b] rounded-3xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 relative">
+                                                {/* Image Container with 16:9 aspect ratio */}
+                                                <div className="aspect-[16/9] relative bg-slate-100 dark:bg-slate-800 w-full overflow-hidden flex items-center justify-center">
                                                     {asset.images && asset.images.length > 0 ? (
-                                                        <img src={asset.images[0]} alt={asset.name} className="w-full h-full object-cover" />
+                                                        <img 
+                                                            src={asset.images[0]} 
+                                                            alt={asset.name} 
+                                                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
+                                                        />
                                                     ) : (
-                                                        <MapPin className="w-10 h-10" />
+                                                        <div className="text-slate-300 dark:text-slate-600 flex flex-col items-center gap-1.5">
+                                                            <Building2 className="w-10 h-10" />
+                                                            <span className="text-[11px] font-medium">No image</span>
+                                                        </div>
                                                     )}
+
+                                                    {/* Floating Frosted Glass Appreciation Badge */}
+                                                    <div className="absolute top-3 right-3 z-10 bg-slate-900/75 dark:bg-slate-900/85 backdrop-blur-md shadow-md border border-white/10 px-2.5 py-1 rounded-full flex items-center gap-1.5">
+                                                        <TrendingUp className="w-3.5 h-3.5 text-[#2cd48b]" />
+                                                        <span className="text-[11px] font-bold text-[#2cd48b] tracking-wider">
+                                                            +{appreciation.toFixed(1)}%
+                                                        </span>
+                                                    </div>
+
+                                                    {/* Location Overlay Pill */}
+                                                    <div className="absolute bottom-3 left-3 z-10 bg-black/60 backdrop-blur-md px-2.5 py-1 rounded-full flex items-center gap-1.5 text-white text-xs max-w-[80%]">
+                                                        <MapPin className="w-3 h-3 shrink-0 text-finance-gold" />
+                                                        <span className="truncate text-[11px] font-medium">{asset.location}</span>
+                                                    </div>
+                                                </div>
+
+                                                {/* Content */}
+                                                <div className="p-4 sm:p-5">
+                                                    <div className="flex justify-between items-start gap-2 mb-2">
+                                                        <h3 className="font-bold text-base sm:text-lg text-slate-900 dark:text-white tracking-tight group-hover:text-finance-gold transition-colors truncate">
+                                                            {asset.name}
+                                                        </h3>
+                                                        <ArrowUpRight className="w-4 h-4 text-slate-400 group-hover:text-finance-gold transition-colors shrink-0 mt-0.5" />
+                                                    </div>
+
+                                                    <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400 text-xs mb-4">
+                                                        <Maximize className="w-3.5 h-3.5 shrink-0" />
+                                                        <span className="font-medium">{asset.dimensions}</span>
+                                                    </div>
+
+                                                    {/* Valuation Growth Bar */}
+                                                    <div className="bg-slate-50 dark:bg-slate-900/60 p-3 rounded-2xl border border-slate-100 dark:border-slate-800/80 mb-2">
+                                                        <div className="flex justify-between items-baseline text-xs mb-1">
+                                                            <span className="text-slate-400 uppercase font-bold text-[10px] tracking-wider">Purchase</span>
+                                                            <span className="text-slate-400 uppercase font-bold text-[10px] tracking-wider">Current Value</span>
+                                                        </div>
+                                                        <div className="flex justify-between items-baseline mb-2">
+                                                            <span className="font-bold font-mono text-slate-700 dark:text-slate-300 text-xs">
+                                                                ₦ {purchase.toLocaleString()}
+                                                            </span>
+                                                            <span className="font-extrabold font-mono text-[#2cd48b] text-sm">
+                                                                ₦ {current.toLocaleString()}
+                                                            </span>
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             </div>
-
-                                            {/* Content */}
-                                            <div className="p-5">
-                                                <h3 className="font-bold text-lg text-slate-900 dark:text-white tracking-tight mb-3 group-hover:text-finance-gold transition-colors">{asset.name}</h3>
-
-                                                <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400 mb-2">
-                                                    <MapPin className="w-4 h-4 shrink-0" />
-                                                    <span className="text-sm truncate font-medium">{asset.location}</span>
-                                                </div>
-
-                                                <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400 mb-6">
-                                                    <Maximize className="w-4 h-4 shrink-0" />
-                                                    <span className="text-sm font-medium">{asset.dimensions}</span>
-                                                </div>
-
-                                                <div className="flex justify-between items-end border-t border-slate-100 dark:border-slate-800 pt-4 mt-4">
-                                                    <div>
-                                                        <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1">Purchased</p>
-                                                        <p className="font-bold text-slate-800 dark:text-white text-xs">
-                                                            {asset.purchaseDate ? new Date(asset.purchaseDate).toLocaleDateString() : 'N/A'}
-                                                        </p>
-                                                    </div>
-                                                    <div>
-                                                        <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1">Purchase Price</p>
-                                                        <p className="font-bold text-slate-900 dark:text-white">₦ {purchase.toLocaleString()}</p>
-                                                    </div>
-                                                    <div className="text-right">
-                                                        <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1">Current</p>
-                                                        <p className="font-bold text-[#2cd48b]">₦ {current.toLocaleString()}</p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </Link>
+                                        </Link>
+                                    </motion.div>
                                 )
                             })}
-                        </div>
+                        </motion.div>
                     )}
                 </div>
             </div>
